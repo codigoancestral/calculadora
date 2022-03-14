@@ -1,9 +1,6 @@
-from genericpath import exists
 from tkinter import *
 import locale
 import math
-
-from sqlalchemy import null
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
