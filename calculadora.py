@@ -1,25 +1,42 @@
+from genericpath import exists
 from tkinter import *
 import locale
 import math
+
+from sqlalchemy import null
 
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
 janela = Tk()
 janela.title('Calculadora Quântica')
 
-visor = Entry(janela, width=40, borderwidth=5)
-visor.grid(row=0, column=0, columnspan=3, padx=10, pady=10)
+visor = Entry(janela, width=40, borderwidth=5, justify='right')
+visor.grid(row=0, column=0, columnspan=4, padx=10, pady=10)
 
-def botaoClique(numero):
-  #visor.delete(0, END)
+def digito(numero):
   valorAtual = visor.get()
-  if numero == '.' and numero not in valorAtual:
-    visor.delete(0, END)
-    visor.insert(0, str(valorAtual) + str(numero))
-  
-  if numero != '.':
-    visor.delete(0, END)
-    visor.insert(0, str(valorAtual) + str(numero))
+  if numero == 0:
+    if str(numero) in valorAtual:
+      if '.' in valorAtual:
+        visor.delete(0, END)
+        visor.insert(0, str(valorAtual) + str(numero))
+      else:
+        visor.delete(0, END)
+        visor.insert(0, str(numero))
+    else:
+      visor.delete(0, END)
+      visor.insert(0, str(valorAtual) + str(numero))
+  else:
+    if numero == '.' and  numero not in valorAtual:
+      if visor.get() == '':
+        visor.delete(0, END)
+        visor.insert(0, str(valorAtual) + '0' + str(numero))
+      else:
+        visor.delete(0, END)
+        visor.insert(0, str(valorAtual) + str(numero))
+    elif numero != '.':
+        visor.delete(0, END)
+        visor.insert(0, str(valorAtual) + str(numero))
 
 def limpaVisor():
   visor.delete(0, END)
@@ -29,82 +46,96 @@ def somar():
   global operacao
   operacao = 'adicao'
   primeiroNumero = visor.get()
-  f_numero = float(primeiroNumero)
-  visor.delete(0, END)
+  if visor.get() != '':
+    f_numero = float(primeiroNumero)
+    visor.delete(0, END)
 
 def subtrair():
   global f_numero
   global operacao
   operacao = 'subtracao'
   primeiroNumero = visor.get()
-  f_numero = float(primeiroNumero)
-  visor.delete(0, END)
+  if visor.get() != '':
+    f_numero = float(primeiroNumero)
+    visor.delete(0, END)
 
 def multiplicar():
   global f_numero
   global operacao
   operacao = 'multiplicacao'
   primeiroNumero = visor.get()
-  f_numero = float(primeiroNumero)
-  visor.delete(0, END)
+  if visor.get() != '':
+    f_numero = float(primeiroNumero)
+    visor.delete(0, END)
 
 def dividir():
   global f_numero
   global operacao
   operacao = 'divisao'
   primeiroNumero = visor.get()
-  f_numero = float(primeiroNumero)
-  visor.delete(0, END)
+  if visor.get() != '':
+    f_numero = float(primeiroNumero)
+    visor.delete(0, END)
 
 def percentagem():
   global f_numero
   global operacao
   operacao = 'percentagem'
-  primeiroNumero = visor.get()
-  f_numero = float(primeiroNumero)
-  visor.delete(0, END)
+  if visor.get() != '':
+    primeiroNumero = visor.get()
+    f_numero = float(primeiroNumero)
+    visor.delete(0, END)
 
 def raiz2():
-  raiz = math.sqrt(float(visor.get()))
-  visor.delete(0, END)
-  visor.insert(0, raiz)
+  if visor.get() != '':
+    raiz = math.sqrt(float(visor.get()))
+    visor.delete(0, END)
+    visor.insert(0, raiz)
 
 def modulo():
-  modulo = float(visor.get()) * -1
-  visor.delete(0, END)
-  visor.insert(0, modulo)
+  if visor.get() != '' and float(visor.get()) != 0:
+    modulo = float(visor.get()) * -1
+    visor.delete(0, END)
+    visor.insert(0, modulo)
 
 def igual():
-  segundoNumero = visor.get()
-  visor.delete(0, END)
-  if operacao == 'adicao':
-    visor.insert(0, f_numero + float(segundoNumero))
+  try:
+    if visor.get() != '' and operacao != '':
+      segundoNumero = visor.get()
+      visor.delete(0, END)
+      if operacao == 'adicao':
+        visor.insert(0, f_numero + float(segundoNumero))
 
-  if operacao == 'subtracao':
-    visor.insert(0, f_numero - float(segundoNumero))
+      if operacao == 'subtracao':
+        visor.insert(0, f_numero - float(segundoNumero))
 
-  if operacao == 'multiplicacao':
-    visor.insert(0, f_numero * float(segundoNumero))
+      if operacao == 'multiplicacao':
+        visor.insert(0, f_numero * float(segundoNumero))
 
-  if operacao == 'divisao':
-    visor.insert(0, f_numero / float(segundoNumero))
+      if operacao == 'divisao':
+        try:
+          visor.insert(0, f_numero / float(segundoNumero))
+        except ZeroDivisionError:
+          visor.delete(0, END)
 
-  if operacao == 'percentagem':
-    visor.insert(0, f_numero * (float(segundoNumero)/100))
+      if operacao == 'percentagem':
+        visor.insert(0, f_numero * (float(segundoNumero)/100))
 
-  if operacao == 'modulo':
-    visor.insert(0, f_numero * -1)
+      if operacao == 'modulo':
+        visor.insert(0, f_numero * -1)
+  except Exception as erro:
+    visor.delete(0, END)
 
-botao1 = Button(janela, text="1", padx=40, pady=20, command=lambda: botaoClique(1))
-botao2 = Button(janela, text="2", padx=40, pady=20, command=lambda: botaoClique(2))
-botao3 = Button(janela, text="3", padx=40, pady=20, command=lambda: botaoClique(3))
-botao4 = Button(janela, text="4", padx=40, pady=20, command=lambda: botaoClique(4))
-botao5 = Button(janela, text="5", padx=40, pady=20, command=lambda: botaoClique(5))
-botao6 = Button(janela, text="6", padx=40, pady=20, command=lambda: botaoClique(6))
-botao7 = Button(janela, text="7", padx=40, pady=20, command=lambda: botaoClique(7))
-botao8 = Button(janela, text="8", padx=40, pady=20, command=lambda: botaoClique(8))
-botao9 = Button(janela, text="9", padx=40, pady=20, command=lambda: botaoClique(9))
-botao0 = Button(janela, text="0", padx=40, pady=20, command=lambda: botaoClique(0))
+botao1 = Button(janela, text="1", padx=40, pady=20, command=lambda: digito(1))
+botao2 = Button(janela, text="2", padx=40, pady=20, command=lambda: digito(2))
+botao3 = Button(janela, text="3", padx=40, pady=20, command=lambda: digito(3))
+botao4 = Button(janela, text="4", padx=40, pady=20, command=lambda: digito(4))
+botao5 = Button(janela, text="5", padx=40, pady=20, command=lambda: digito(5))
+botao6 = Button(janela, text="6", padx=40, pady=20, command=lambda: digito(6))
+botao7 = Button(janela, text="7", padx=40, pady=20, command=lambda: digito(7))
+botao8 = Button(janela, text="8", padx=40, pady=20, command=lambda: digito(8))
+botao9 = Button(janela, text="9", padx=40, pady=20, command=lambda: digito(9))
+botao0 = Button(janela, text="0", padx=40, pady=20, command=lambda: digito(0))
 botaoLimpar       = Button(janela, text="C", padx=39, pady=20, command=lambda: limpaVisor())
 botaoSomar        = Button(janela, text="+", padx=41, pady=20, command=lambda: somar())
 botaoSubtrair     = Button(janela, text="-", padx=41, pady=20, command=lambda: subtrair())
@@ -114,7 +145,7 @@ botaoIgual        = Button(janela, text="=", padx=41, pady=20, command=lambda: i
 botaoPercentagem  = Button(janela, text="%", padx=39, pady=20, command=lambda: percentagem())
 botaoRaiz2        = Button(janela, text="√", padx=39, pady=20, command=lambda: raiz2())
 botaoModulo       = Button(janela, text="+-", padx=36, pady=20, command=lambda: modulo())
-botaoVirgula      = Button(janela, text=",", padx=41, pady=20, command=lambda: botaoClique('.'))
+botaoVirgula      = Button(janela, text=",", padx=41, pady=20, command=lambda: digito('.'))
 
 botao1.grid(row=4, column=0)
 botao2.grid(row=4, column=1)
